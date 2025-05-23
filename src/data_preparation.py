@@ -68,3 +68,10 @@ plt.xticks(rotation=45, ha='right')
 plt.tight_layout()
 plt.savefig('data/visualization/top_conditions.png')
 plt.close()
+
+# Сохранение обработанных данных
+print("Сохранение предобработанных данных...")
+train_data.to_csv('data/train_preprocessed.csv', index=False)
+test_data.to_csv('data/test_preprocessed.csv', index=False)
+
+print("Предобработка данных завершена!")
