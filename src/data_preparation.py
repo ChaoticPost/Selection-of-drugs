@@ -27,3 +27,15 @@ test_data = pd.read_csv('data/drugsComTest_raw.csv')
 
 print(f"Размер обучающей выборки: {train_data.shape}")
 print(f"Размер тестовой выборки: {test_data.shape}")
+
+# Функция для очистки текстов отзывов
+def clean_text(text):
+    if isinstance(text, str):
+        text = re.sub(r'<.*?>', '', text)  # Удаление HTML
+        text = re.sub(r'[^a-zA-Z\s]', '', text)  # Удаление спецсимволов
+        text = text.lower()  # Приведение к нижнему регистру
+        stop_words = set(stopwords.words('english'))
+        word_tokens = word_tokenize(text)
+        text = ' '.join([w for w in word_tokens if w not in stop_words])
+        return text
+    return ''
