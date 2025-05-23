@@ -39,3 +39,32 @@ def clean_text(text):
         text = ' '.join([w for w in word_tokens if w not in stop_words])
         return text
     return ''
+
+# Визуализация распределения рейтингов
+plt.figure(figsize=(10, 6))
+sns.histplot(train_data['rating'], bins=10, kde=True)
+plt.title('Распределение рейтингов лекарств')
+plt.xlabel('Рейтинг')
+plt.ylabel('Количество')
+plt.savefig('data/visualization/rating_distribution.png')
+plt.close()
+
+# Визуализация распределения эффективности
+plt.figure(figsize=(10, 6))
+sns.countplot(x='effective', data=train_data)
+plt.title('Распределение эффективности лекарств')
+plt.xlabel('Эффективность (0 - неэффективно, 1 - эффективно)')
+plt.ylabel('Количество')
+plt.savefig('data/visualization/effectiveness_distribution.png')
+plt.close()
+
+# Топ-10 заболеваний
+plt.figure(figsize=(12, 8))
+train_data['condition'].value_counts().head(10).plot(kind='bar')
+plt.title('Топ-10 наиболее часто встречающихся заболеваний')
+plt.xlabel('Заболевание')
+plt.ylabel('Количество')
+plt.xticks(rotation=45, ha='right')
+plt.tight_layout()
+plt.savefig('data/visualization/top_conditions.png')
+plt.close()
