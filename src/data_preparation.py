@@ -40,10 +40,31 @@ def clean_text(text):
         return text
     return ''
 
-# Применение очистки к текстам
-train_data['clean_review'] = train_data['review'].apply(clean_text)
-test_data['clean_review'] = test_data['review'].apply(clean_text)
+# Визуализация распределения рейтингов
+plt.figure(figsize=(10, 6))
+sns.histplot(train_data['rating'], bins=10, kde=True)
+plt.title('Распределение рейтингов лекарств')
+plt.xlabel('Рейтинг')
+plt.ylabel('Количество')
+plt.savefig('data/visualization/rating_distribution.png')
+plt.close()
 
-# Создание целевой переменной: 1 если рейтинг >= 7, иначе 0
-train_data['effective'] = (train_data['rating'] >= 7).astype(int)
-test_data['effective'] = (test_data['rating'] >= 7).astype(int)
+# Визуализация распределения эффективности
+plt.figure(figsize=(10, 6))
+sns.countplot(x='effective', data=train_data)
+plt.title('Распределение эффективности лекарств')
+plt.xlabel('Эффективность (0 - неэффективно, 1 - эффективно)')
+plt.ylabel('Количество')
+plt.savefig('data/visualization/effectiveness_distribution.png')
+plt.close()
+
+# Топ-10 заболеваний
+plt.figure(figsize=(12, 8))
+train_data['condition'].value_counts().head(10).plot(kind='bar')
+plt.title('Топ-10 наиболее часто встречающихся заболеваний')
+plt.xlabel('Заболевание')
+plt.ylabel('Количество')
+plt.xticks(rotation=45, ha='right')
+plt.tight_layout()
+plt.savefig('data/visualization/top_conditions.png')
+plt.close()
