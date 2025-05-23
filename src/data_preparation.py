@@ -19,3 +19,11 @@ test_data = pd.read_csv('data/drugsComTest_raw.csv')
 
 print(f"Размер обучающей выборки: {train_data.shape}")
 print(f"Размер тестовой выборки: {test_data.shape}")
+
+# Загрузка обучающей и тестовой выборки
+print("Загрузка данных...")
+train_data = pd.read_csv('data/drugsComTrain_raw.csv')
+test_data = pd.read_csv('data/drugsComTest_raw.csv')
+
+print(f"Размер обучающей выборки: {train_data.shape}")
+print(f"Размер тестовой выборки: {test_data.shape}")
