@@ -39,11 +39,3 @@ def clean_text(text):
         text = ' '.join([w for w in word_tokens if w not in stop_words])
         return text
     return ''
-
-# Применение очистки к текстам
-train_data['clean_review'] = train_data['review'].apply(clean_text)
-test_data['clean_review'] = test_data['review'].apply(clean_text)
-
-# Создание целевой переменной: 1 если рейтинг >= 7, иначе 0
-train_data['effective'] = (train_data['rating'] >= 7).astype(int)
-test_data['effective'] = (test_data['rating'] >= 7).astype(int)
