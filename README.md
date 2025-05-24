@@ -25,36 +25,30 @@
 
 ```
 med_recommendation_system/
-├── data/
-│   ├── drugsComTrain_raw.csv   # Обучающая выборка
-│   ├── drugsComTest_raw.csv    # Тестовая выборка
-│   ├── train_features_corrected.csv  # Обработанные признаки для обучения
-│   ├── test_features_corrected.csv   # Обработанные признаки для тестирования
-│   ├── best_model.pkl          # Сохраненная модель
-│   └── visualization/          # Визуализации и графики
-├── src/
-│   ├── data_preparation.py     # Предварительная обработка данных
-│   ├── data_split.py           # Разделение на обучающую и тестовую выборки
-│   ├── data_correction.py      # Корректировка данных для устранения утечек
-│   ├── data_correction_optimized.py  # Оптимизированная версия корректировки данных
-│   ├── model_training_corrected.py   # Обучение и оценка моделей
-│   └── model_validation.py     # Валидация качества моделей
-├── react-app/                  # React-приложение
-│   ├── public/                 # Публичные файлы
-│   ├── src/                    # Исходный код React-приложения
-│   │   ├── components/         # Компоненты React
-│   │   │   ├── layout/         # Компоненты макета
-│   │   │   └── ui/             # UI-компоненты
-│   │   ├── context/            # Контекст React
-│   │   ├── hooks/              # Пользовательские хуки
-│   │   ├── pages/              # Страницы приложения
-│   │   ├── services/           # Сервисы для работы с данными
-│   │   └── types/              # TypeScript типы
-│   ├── package.json            # Зависимости проекта
-│   └── tsconfig.json           # Конфигурация TypeScript
-├── final_report.md             # Итоговый отчет по проекту
-├── react-app-architecture.md   # Описание архитектуры веб-приложения
-└── README.md                   # Общее описание проекта
+├── data/                      # Директория с данными
+│   ├── drugsComTest_raw.csv   # Исходные тестовые данные
+│   ├── drugsComTrain_raw.csv  # Исходные обучающие данные
+│   └── visualization/         # Директория для визуализаций (создается автоматически)
+├── models/                    # Директория для сохранения моделей (создается автоматически)
+├── src/                       # Исходный код Python-скриптов
+│   ├── data_preparation.py    # Предварительная обработка данных
+│   ├── data_split.py          # Разделение данных и создание признаков
+│   ├── model_training_corrected.py  # Обучение и оценка моделей
+│   ├── model_validation.py    # Валидация моделей
+│   ├── data_correction.py     # Дополнительные скрипты для корректировки данных
+│   └── data_correction_optimized.py
+└── react-app/                 # React-приложение
+    ├── public/                # Статические файлы
+    └── src/                   # Исходный код React-приложения
+        ├── components/        # Компоненты React
+        │   ├── layout/        # Компоненты макета
+        │   └── ui/            # UI-компоненты
+        ├── context/           # Контекст для управления состоянием
+        ├── hooks/             # Пользовательские хуки
+        ├── lib/               # Вспомогательные функции
+        ├── pages/             # Страницы приложения
+        ├── services/          # Сервисы для работы с данными
+        └── types/             # TypeScript типы
 ```
 
 ## Настройка проекта
