@@ -1,118 +1,144 @@
 import pandas as pd
 import numpy as np
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.svm import SVC
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
 import matplotlib.pyplot as plt
 import seaborn as sns
-from sklearn.linear_model import LogisticRegression
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.svm import SVC
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, classification_report
-import pickle
-import time
+import os
+import joblib
 
-# Загрузка скорректированных данных
-print("Загрузка скорректированных данных...")
-X_train = pd.read_csv('data/train_features_corrected.csv')
-X_test = pd.read_csv('data/test_features_corrected.csv')
-y_train = pd.read_csv('data/train_target_corrected.csv').values.ravel()
-y_test = pd.read_csv('data/test_target_corrected.csv').values.ravel()
+# Создание директории для моделей и визуализаций, если они не существуют
+os.makedirs('../models', exist_ok=True)
+os.makedirs('../data/visualization', exist_ok=True)
 
-# Функция для оценки модели
-def evaluate_model(model, X_train, X_test, y_train, y_test, model_name):
-    start_time = time.time()
-    
-    # Обучение модели
-    print(f"Обучение модели {model_name}...")
-    model.fit(X_train, y_train)
-    
-    # Предсказания
-    y_pred_train = model.predict(X_train)
-    y_pred_test = model.predict(X_test)
-    
-    # Метрики качества
-    train_accuracy = accuracy_score(y_train, y_pred_train)
-    test_accuracy = accuracy_score(y_test, y_pred_test)
-    test_precision = precision_score(y_test, y_pred_test)
-    test_recall = recall_score(y_test, y_pred_test)
-    test_f1 = f1_score(y_test, y_pred_test)
-    
-    # Матрица ошибок
-    cm = confusion_matrix(y_test, y_pred_test)
-    
-    # Визуализация матрицы ошибок
-    plt.figure(figsize=(8, 6))
-    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
-    plt.title(f'Матрица ошибок для {model_name}')
-    plt.xlabel('Предсказанные значения')
-    plt.ylabel('Истинные значения')
-    plt.savefig(f'data/visualization/confusion_matrix_{model_name}.png')
-    plt.close()
-    
-    # Сохранение модели
-    with open(f'data/{model_name}_model.pkl', 'wb') as f:
-        pickle.dump(model, f)
-    
-    end_time = time.time()
-    training_time = end_time - start_time
-    
-    # Вывод результатов
-    print(f"\nРезультаты для модели {model_name}:")
-    print(f"Время обучения: {training_time:.2f} секунд")
-    print(f"Accuracy на обучающей выборке: {train_accuracy:.4f}")
-    print(f"Accuracy на тестовой выборке: {test_accuracy:.4f}")
-    print(f"Precision на тестовой выборке: {test_precision:.4f}")
-    print(f"Recall на тестовой выборке: {test_recall:.4f}")
-    print(f"F1-score на тестовой выборке: {test_f1:.4f}")
-    print("\nОтчет по классификации:")
-    print(classification_report(y_test, y_pred_test))
-    
-    return {
-        'model_name': model_name,
-        'training_time': training_time,
-        'train_accuracy': train_accuracy,
-        'test_accuracy': test_accuracy,
-        'test_precision': test_precision,
-        'test_recall': test_recall,
-        'test_f1': test_f1
-    }
+# Загрузка данных
+print("Загрузка данных...")
+train_features = pd.read_csv('../data/train_features_corrected.csv')
+test_features = pd.read_csv('../data/test_features_corrected.csv')
+train_target = pd.read_csv('../data/train_target_corrected.csv')
+test_target = pd.read_csv('../data/test_target_corrected.csv')
 
-# Обучение и оценка моделей
-models = [
-    (LogisticRegression(max_iter=1000, random_state=42), 'lr'),
-    (RandomForestClassifier(n_estimators=100, random_state=42), 'rf'),
-    # (SVC(kernel='linear', random_state=42), 'svm')  # Закомментировано для экономии времени
-]
+# Преобразование целевых переменных из DataFrame в Series
+train_target = train_target.iloc[:, 0]
+test_target = test_target.iloc[:, 0]
 
-results = []
-for model, name in models:
-    result = evaluate_model(model, X_train, X_test, y_train, y_test, name)
-    results.append(result)
+print(f"Размер обучающей выборки: {train_features.shape}")
+print(f"Размер тестовой выборки: {test_features.shape}")
 
-# Сравнение моделей
-results_df = pd.DataFrame(results)
-print("\nСравнение моделей:")
-print(results_df)
+# Обучение моделей
+print("\nОбучение моделей...")
 
-# Визуализация сравнения моделей
-plt.figure(figsize=(12, 8))
-metrics = ['test_accuracy', 'test_precision', 'test_recall', 'test_f1']
-for i, metric in enumerate(metrics):
-    plt.subplot(2, 2, i+1)
-    sns.barplot(x='model_name', y=metric, data=results_df)
-    plt.title(f'{metric}')
-    plt.ylim(0, 1)
-plt.tight_layout()
-plt.savefig('data/visualization/model_comparison.png')
+# 1. Логистическая регрессия
+print("\n1. Логистическая регрессия")
+lr_model = LogisticRegression(max_iter=1000, random_state=42)
+lr_model.fit(train_features, train_target)
+lr_train_pred = lr_model.predict(train_features)
+lr_test_pred = lr_model.predict(test_features)
+
+# Оценка качества
+lr_train_accuracy = accuracy_score(train_target, lr_train_pred)
+lr_test_accuracy = accuracy_score(test_target, lr_test_pred)
+lr_test_precision = precision_score(test_target, lr_test_pred)
+lr_test_recall = recall_score(test_target, lr_test_pred)
+lr_test_f1 = f1_score(test_target, lr_test_pred)
+
+print(f"Точность на обучающей выборке: {lr_train_accuracy:.4f}")
+print(f"Точность на тестовой выборке: {lr_test_accuracy:.4f}")
+print(f"Precision на тестовой выборке: {lr_test_precision:.4f}")
+print(f"Recall на тестовой выборке: {lr_test_recall:.4f}")
+print(f"F1-score на тестовой выборке: {lr_test_f1:.4f}")
+
+# Сохранение модели
+joblib.dump(lr_model, '../models/logistic_regression_model.pkl')
+
+# 2. Случайный лес
+print("\n2. Случайный лес")
+rf_model = RandomForestClassifier(n_estimators=100, random_state=42)
+rf_model.fit(train_features, train_target)
+rf_train_pred = rf_model.predict(train_features)
+rf_test_pred = rf_model.predict(test_features)
+
+# Оценка качества
+rf_train_accuracy = accuracy_score(train_target, rf_train_pred)
+rf_test_accuracy = accuracy_score(test_target, rf_test_pred)
+rf_test_precision = precision_score(test_target, rf_test_pred)
+rf_test_recall = recall_score(test_target, rf_test_pred)
+rf_test_f1 = f1_score(test_target, rf_test_pred)
+
+print(f"Точность на обучающей выборке: {rf_train_accuracy:.4f}")
+print(f"Точность на тестовой выборке: {rf_test_accuracy:.4f}")
+print(f"Precision на тестовой выборке: {rf_test_precision:.4f}")
+print(f"Recall на тестовой выборке: {rf_test_recall:.4f}")
+print(f"F1-score на тестовой выборке: {rf_test_f1:.4f}")
+
+# Сохранение модели
+joblib.dump(rf_model, '../models/random_forest_model.pkl')
+
+# 3. SVM
+print("\n3. Support Vector Machine")
+svm_model = SVC(probability=True, random_state=42)
+svm_model.fit(train_features, train_target)
+svm_train_pred = svm_model.predict(train_features)
+svm_test_pred = svm_model.predict(test_features)
+
+# Оценка качества
+svm_train_accuracy = accuracy_score(train_target, svm_train_pred)
+svm_test_accuracy = accuracy_score(test_target, svm_test_pred)
+svm_test_precision = precision_score(test_target, svm_test_pred)
+svm_test_recall = recall_score(test_target, svm_test_pred)
+svm_test_f1 = f1_score(test_target, svm_test_pred)
+
+print(f"Точность на обучающей выборке: {svm_train_accuracy:.4f}")
+print(f"Точность на тестовой выборке: {svm_test_accuracy:.4f}")
+print(f"Precision на тестовой выборке: {svm_test_precision:.4f}")
+print(f"Recall на тестовой выборке: {svm_test_recall:.4f}")
+print(f"F1-score на тестовой выборке: {svm_test_f1:.4f}")
+
+# Сохранение модели
+joblib.dump(svm_model, '../models/svm_model.pkl')
+
+# Визуализация результатов
+print("\nВизуализация результатов...")
+
+# Матрица ошибок для лучшей модели (выбираем случайный лес)
+plt.figure(figsize=(10, 8))
+cm = confusion_matrix(test_target, rf_test_pred)
+sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
+plt.title('Матрица ошибок для модели случайного леса')
+plt.xlabel('Предсказанные значения')
+plt.ylabel('Истинные значения')
+plt.savefig('../data/visualization/confusion_matrix.png')
 plt.close()
 
-# Выбор лучшей модели по F1-score
-best_model_idx = results_df['test_f1'].idxmax()
-best_model_name = results_df.loc[best_model_idx, 'model_name']
-print(f"\nЛучшая модель по F1-score: {best_model_name}")
+# Сравнение метрик для разных моделей
+models = ['Логистическая регрессия', 'Случайный лес', 'SVM']
+accuracy = [lr_test_accuracy, rf_test_accuracy, svm_test_accuracy]
+precision = [lr_test_precision, rf_test_precision, svm_test_precision]
+recall = [lr_test_recall, rf_test_recall, svm_test_recall]
+f1 = [lr_test_f1, rf_test_f1, svm_test_f1]
 
-# Копирование лучшей модели в best_model.pkl
-with open(f'data/{best_model_name}_model.pkl', 'rb') as f:
-    best_model = pickle.load(f)
-with open('data/best_model.pkl', 'wb') as f:
-    pickle.dump(best_model, f)
+metrics_df = pd.DataFrame({
+    'Модель': models,
+    'Accuracy': accuracy,
+    'Precision': precision,
+    'Recall': recall,
+    'F1-score': f1
+})
 
-print("Обучение и оценка моделей завершены!")
+# Сохранение метрик в CSV
+metrics_df.to_csv('../data/model_metrics.csv', index=False)
+
+# Визуализация сравнения метрик
+plt.figure(figsize=(12, 8))
+metrics_df.set_index('Модель')[['Accuracy', 'Precision', 'Recall', 'F1-score']].plot(kind='bar')
+plt.title('Сравнение метрик для разных моделей')
+plt.ylabel('Значение метрики')
+plt.ylim(0, 1)
+plt.grid(axis='y', linestyle='--', alpha=0.7)
+plt.savefig('../data/visualization/model_comparison.png')
+plt.close()
+
+print("\nОбучение и оценка моделей завершены!")
+print(f"Лучшая модель: {models[np.argmax(f1)]} с F1-score: {max(f1):.4f}")
